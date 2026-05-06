@@ -80,6 +80,34 @@ function getEffectivenessDescription(typeMultiplier) {
 // ==========================================
 
 /**
+ * Helper function to extract attack stats from attacker
+ * @param {Object} attacker - The attacking Pokemon
+ * @returns {Object} Extracted attack properties
+ */
+function extractAttackStats(attacker) {
+    const { nam, attck, strngth, typs } = attacker;
+    return {
+        name: nam,
+        attack: attck,
+        strength: strngth,
+        types: typs
+    };
+}
+
+/**
+ * Helper function to calculate base damage multiplier
+ * @param {number} attack - Base attack stat
+ * @param {number} strength - Strength stat
+ * @returns {number} Combined damage multiplier
+ */
+function calculateDamageMultiplier(attack, strength) {
+    const baseAttack = attack || 50;
+    const strengthMultiplier = 0.8 + ((strength || 50) / 100) * 0.7;
+    
+    return baseAttack + strengthMultiplier;
+}
+
+/**
  * Calculates damage for an attack.
  * Considers attack stat, strength, type effectiveness, and randomization.
  * @param {Object} attacker - The attacking Pokemon
@@ -87,14 +115,17 @@ function getEffectivenessDescription(typeMultiplier) {
  * @returns {Object} Damage result with amount and effectiveness message
  */
 function calculateDamage(attacker, defender) {
+    // Extract stats using helper
+    const attackerStats = extractAttackStats(attacker);
+    
     // Base damage from attack stat (scaled down for gameplay)
-    const baseAttack = attacker.attack || 50;
+    const baseAttack = attackerStats.attack || 50;
     
     // Strength multiplier (1-100 scaled to 0.8-1.5)
-    const strengthMultiplier = 0.8 + ((attacker.strength || 50) / 100) * 0.7;
+    const strengthMultiplier = 0.8 + ((attackerStats.strength || 50) / 100) * 0.7;
     
     // Type effectiveness
-    const attackerTypes = attacker.types || ['normal'];
+    const attackerTypes = attackerStats.types || ['normal'];
     const defenderTypes = defender.types || ['normal'];
     const typeMultiplier = getTypeEffectiveness(attackerTypes, defenderTypes);
     
@@ -105,9 +136,12 @@ function calculateDamage(attacker, defender) {
     const isCritical = Math.random() < 0.1;
     const critMultiplier = isCritical ? 1.5 : 1;
     
+    // Use helper for damage calculation
+    const totalMultiplier = calculateDamageMultiplier(baseAttack, attackerStats.strength);
+    
     // Calculate final damage
     let damage = Math.round(
-        (baseAttack * 0.4) * strengthMultiplier * typeMultiplier * randomFactor * critMultiplier
+        (totalMultiplier * 0.4) * typeMultiplier * randomFactor * critMultiplier
     );
     
     // Minimum damage of 1 (unless immune)
