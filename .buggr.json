@@ -1,0 +1,30 @@
+{
+  "buggerId": "cmoucc0t50001ic04l1rfpg3c",
+  "stressLevel": "medium",
+  "bugCount": 4,
+  "createdAt": "2026-05-06T17:37:12.277Z",
+  "executedAt": "2026-05-06T17:38:07.688Z",
+  "aiStartedAt": "2026-05-06T17:37:12.791Z",
+  "aiCompletedAt": "2026-05-06T17:38:07.688Z",
+  "aiDurationMs": 54897,
+  "symptoms": [
+    "Profile page username form: Valid usernames like 'Player123' and 'TestUser' are rejected with error messages, while invalid usernames with special characters like 'user@#$%' and names over 20 characters are accepted as valid",
+    "Profile page stats section: Win rate percentage always shows 0.0% regardless of actual wins and battles, even for users with high win records like 15 wins out of 20 battles",
+    "Battle screen Pokemon stats display: All Pokemon names, attack values, strength values, and type information are missing or show as undefined during combat calculations",
+    "Battle damage calculation panel: Damage values show inflated numbers like 52.5 instead of proper calculated damage like 20, making all attacks appear overpowered"
+  ],
+  "filesBuggered": [
+    "js/profile.js",
+    "js/combat.js"
+  ],
+  "changes": [
+    "Modified validateUsernameFormat function to invert validation logic - valid usernames are rejected and invalid ones are accepted by flipping the boolean return values and regex test result",
+    "Modified calculateWinRate function to return 0 instead of the calculated percentage, breaking win rate display in the stats section",
+    "Added extractAttackStats function with wrong destructuring property names: { nam, attck, strngth, typs } instead of { name, attack, strength, types }",
+    "Modified calculateDamageMultiplier function to use string concatenation (baseAttack + strengthMultiplier) instead of proper multiplication for damage calculation"
+  ],
+  "originalCommitSha": "6a9afefc5d890c4d24f3d7a68d8766c696c9c74e",
+  "owner": "InnovaTori",
+  "repo": "stresst-pokemon-battle",
+  "branch": "buggr-main-20260506-103648"
+}
