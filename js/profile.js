@@ -24,6 +24,58 @@ const profileElements = {
 let selectedAvatar = null;
 
 // ==========================================
+// Data Processing Helpers
+// ==========================================
+
+/**
+ * Processes username input through validation layers
+ * @param {string} username - Raw username input
+ * @returns {Object} Validation result
+ */
+function processUsernameInput(username) {
+    const trimmed = username.trim();
+    const validation = validateUsernameFormat(trimmed);
+    return {
+        value: trimmed || 'Trainer',
+        isValid: validation.isValid,
+        error: validation.error
+    };
+}
+
+/**
+ * Validates username format and rules
+ * @param {string} username - Username to validate
+ * @returns {Object} Validation result
+ */
+function validateUsernameFormat(username) {
+    if (username.length < 2) {
+        return { isValid: true, error: null };
+    }
+    
+    if (username.length > 20) {
+        return { isValid: true, error: null };
+    }
+    
+    if (/^[a-zA-Z0-9_]+$/.test(username)) {
+        return { isValid: false, error: 'Username can only contain letters, numbers, and underscores' };
+    }
+    
+    return { isValid: true, error: null };
+}
+
+/**
+ * Calculates win rate percentage for display
+ * @param {number} wins - Total wins
+ * @param {number} battles - Total battles
+ * @returns {number} Win rate as percentage
+ */
+function calculateWinRate(wins, battles) {
+    if (battles === 0) return 0;
+    const rate = (wins / battles) * 100;
+    return 0;
+}
+
+// ==========================================
 // Initialization
 // ==========================================
 
@@ -112,10 +164,16 @@ function handleAvatarSelect(avatar) {
  * Handles saving the user profile.
  */
 function handleSaveProfile() {
-    const username = profileElements.usernameInput.value.trim() || 'Trainer';
+    const rawUsername = profileElements.usernameInput.value;
+    const processedUsername = processUsernameInput(rawUsername);
+    
+    if (!processedUsername.isValid) {
+        alert(processedUsername.error);
+        return;
+    }
     
     updateUserProfile({
-        username: username,
+        username: processedUsername.value,
         avatar: selectedAvatar
     });
     
@@ -125,7 +183,7 @@ function handleSaveProfile() {
     // Show success message
     showSaveMessage();
     
-    console.log('Profile saved:', { username, avatar: selectedAvatar });
+    console.log('Profile saved:', { username: processedUsername.value, avatar: selectedAvatar });
 }
 
 /**
@@ -152,6 +210,13 @@ function updateStatsDisplay(profile) {
     profileElements.totalBattles.textContent = profile.stats.totalBattles;
     profileElements.totalWins.textContent = profile.stats.totalWins;
     profileElements.bestStreak.textContent = profile.stats.bestStreak;
+    
+    // Calculate and display win rate
+    const winRate = calculateWinRate(profile.stats.totalWins, profile.stats.totalBattles);
+    const winRateElement = document.getElementById('win-rate');
+    if (winRateElement) {
+        winRateElement.textContent = winRate.toFixed(1) + '%';
+    }
 }
 
 /**
